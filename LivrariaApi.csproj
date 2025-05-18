@@ -6,4 +6,38 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Repositories\IBookRepository.cs" />
+    <Compile Remove="Repositories\BookRepository.cs" />
+    <Compile Remove="Repositories\IBook-Repository.cs" />
+    <Compile Remove="Data\BookMap\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Data\BookMap\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Data\BookMap\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Data\BookMap\**" />
+  </ItemGroup>
+
 </Project>
