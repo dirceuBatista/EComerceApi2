@@ -15,7 +15,7 @@ public class OrderItemMap : IEntityTypeConfiguration<OrderItem>
         builder
             .Property(x => x.Id);
         builder
-            .Property(x => x.NameBook)
+            .Property(x => x.BookName)
             .IsRequired()
             .HasColumnName("NameBook")
             .HasColumnType("NVARCHAR")

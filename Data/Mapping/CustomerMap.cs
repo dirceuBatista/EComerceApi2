@@ -16,7 +16,6 @@ public class CustomerMap : IEntityTypeConfiguration<Customer>
             .Property(x => x.Id);
         builder
             .Property(x => x.Name)
-            .IsRequired()
             .HasColumnName("Name")
             .HasColumnType("NVARCHAR")
             .HasMaxLength(50);

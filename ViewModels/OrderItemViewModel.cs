@@ -1,16 +1,15 @@
-namespace LivrariaApi.Models;
+using System.Text.Json.Serialization;
 
-public class OrderItem
+namespace LivrariaApi.ViewModels;
+
+public class OrderItemViewModel
 {
-    public Guid Id { get; set; }= Guid.NewGuid();
-   
+    [JsonIgnore]
     public Guid OrderId { get; set; }
-    public Order Order { get; set; }
+    [JsonIgnore]
     public Guid BookId { get; set; }
-    public string BookName{ get; set; }
+    public string BookName { get; set; }
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
-        
     public decimal Total { get; set; }
-
 }

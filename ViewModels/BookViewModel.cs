@@ -1,8 +1,9 @@
-namespace LivrariaApi.Models;
+using LivrariaApi.Models;
 
-public class Book
+namespace LivrariaApi.ViewModels;
+
+public class BookViewModel
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; }
     public string Author { get; set; }
     public decimal Price { get; set; }
