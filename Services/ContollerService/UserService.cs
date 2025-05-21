@@ -61,20 +61,33 @@ public class UserService(AppDbContext context, IMapper mapper)
             Name = model.Name,
             Email = model.Email,
             Slug = model.Slug,
-            Roles = new List<Role>(),
-            customer = new Customer()
-            {
-                UserId = model.Id,
-                Name = model.Name
-            }
+            PasswordHash = model.Password
+            
         };
         try
         {
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            return new ResultViewModel<UserViewModel>(
+                $"Erro Interno - A03{e.Message}");
+        }
+        var customer = new Customer
+        {
+            UserId = user.Id,  
+            Name = model.Name
+        };
+        try
+        {
+            await _context.Customers.AddAsync(customer);
+            await _context.SaveChangesAsync();
+            
             var userDto = _mapper.Map<UserViewModel>(user);
             return new ResultViewModel<UserViewModel>(userDto);
         }
+
         catch (Exception e)
         {
             return new ResultViewModel<UserViewModel>(

@@ -22,6 +22,7 @@
     <Compile Remove="Repositories\BookRepository.cs" />
     <Compile Remove="Repositories\IBook-Repository.cs" />
     <Compile Remove="Data\BookMap\**" />
+    <Compile Remove="Services\ContollerService\CustomerService.cs" />
   </ItemGroup>
 
   <ItemGroup>
