@@ -1,6 +1,7 @@
 using LivrariaApi.Extensions;
 using LivrariaApi.Services.ContollerService;
 using LivrariaApi.ViewModels;
+using LivrariaApi.ViewModels.InputViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LivrariaApi.Controllers;
@@ -34,7 +35,7 @@ public class UserController(UserService userService) : ControllerBase
     {
         var result = await userService.GetUserById(id);
         if (!result.Success)
-            return BadRequest(new { erros = result.Errors });
+            return NotFound(new { erros = result.Errors });
         return Ok(result.Data);
     }
     /// <summary>
@@ -50,7 +51,7 @@ public class UserController(UserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateUser(
-        [FromBody] UserViewModel model)
+        [FromBody] InputUserCreate model)
     {
         if (!ModelState.IsValid)
             return BadRequest(
@@ -58,8 +59,9 @@ public class UserController(UserService userService) : ControllerBase
         var create 
             = await userService.CreateUser(model);
         if (!create.Success)
-            return Conflict(new { erros = create.Errors });
-        return Ok(create);
+            return Conflict(new { erros = create.Errors});
+        return CreatedAtAction(nameof(GetByIdUser), new { id = create.Data.Id }, create.Data);
+
     }
     /// <summary>
     /// Atualizar um usuário
@@ -75,14 +77,14 @@ public class UserController(UserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateUser(
-        [FromBody] UserViewModel model,
+        [FromBody] InputUserUpdate model,
         [FromRoute] Guid id)
     {
         if (!ModelState.IsValid)
             return BadRequest(new ResultViewModel<string>(ModelState.GetErrors()));
         var result = await userService.UpdateUser(model, id);
         if (!result.Success)
-            return Conflict(new { erros = result.Errors });
+            return NotFound(new { erros = result.Errors });
         return Ok(result);
     }
     /// <summary>
@@ -99,7 +101,8 @@ public class UserController(UserService userService) : ControllerBase
     {
         var result = await userService.DeleteUser(id);
         if (!result.Success)
-            return Conflict(new { erros = result.Errors });
-        return Ok($"{result.Data.Name} - usuario deletado");
+            return NotFound(new { erros = result.Errors });
+        return Ok(new { message = $"{result.Data.Name} - usuário deletado" });
+
     }
 }

@@ -1,3 +1,5 @@
+using LivrariaApi.ViewModels;
+
 namespace LivrariaApi.Models;
 
 public class Book

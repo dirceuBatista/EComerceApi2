@@ -6,6 +6,10 @@ public class Customer
     public string Name { get; set; }
     public Guid UserId { get; set; }
     public User User { get; set; }
+    
+    public string? Document { get; set; }
+    
+    public string? Phone { get; set; }
     public List<Order> Orders { get; set; } = new List<Order>();
 
 }

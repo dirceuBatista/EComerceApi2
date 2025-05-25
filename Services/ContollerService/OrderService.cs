@@ -2,6 +2,7 @@ using AutoMapper;
 using LivrariaApi.Data;
 using LivrariaApi.Models;
 using LivrariaApi.ViewModels;
+using LivrariaApi.ViewModels.InputOrder;
 using Microsoft.EntityFrameworkCore;
 
 namespace LivrariaApi.Services.ContollerService;
@@ -11,8 +12,14 @@ public class OrderService(AppDbContext context, IMapper mapper)
     private readonly AppDbContext _context = context;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<ResultViewModel<OrderViewModel>> CreateOrder(OrderViewModel model)
+    public async Task<ResultViewModel<OrderViewModel>> CreateOrder(InputOrderCreate model)
     {
+        var bookIds = model.OrderItems.Select(i => i.BookId).ToList();
+        var books = await _context.Books.Where(b => bookIds.Contains(b.Id)).ToListAsync();
+
+        if (books.Count != bookIds.Count)
+            return new ResultViewModel<OrderViewModel>("Um ou mais livros não foram encontrados.");
+        
         var order = new Order
         {
             CustomerId = model.CustomerId,
@@ -86,7 +93,7 @@ public class OrderService(AppDbContext context, IMapper mapper)
         }
     }
 
-    public async Task<ResultViewModel<OrderViewModel>> UpdateOrder( Guid id, OrderViewModel model)
+    public async Task<ResultViewModel<OrderViewModel>> UpdateOrder( Guid id, InputOrderUpdate model)
     {
         var order =
             await _context
@@ -97,19 +104,38 @@ public class OrderService(AppDbContext context, IMapper mapper)
             return new ResultViewModel<OrderViewModel>(
                 "Pedido não encontrado");
         order.CustomerId = model.CustomerId;
-        order.OrderItems = model.OrderItems.Select(item => new OrderItem
+        
+        _context.OrderItems.RemoveRange(order.OrderItems);
+        await _context.SaveChangesAsync();
+        
+        var newOrderItems = new List<OrderItem>();
+
+        foreach (var item in model.OrderItems)
         {
-            BookId = item.BookId,
-            BookName = item.BookName,
-            Quantity = item.Quantity,
-            UnitPrice = item.UnitPrice,
-            Total = item.Quantity * item.UnitPrice,
-            OrderId = order.Id 
-        }).ToList();
+            var book = await _context.Books
+                .FirstOrDefaultAsync(b => b.Id == item.BookId);
+
+            if (book == null)
+                return new ResultViewModel<OrderViewModel>($"Livro com ID {item.BookId} não encontrado");
+
+            var orderItem = new OrderItem
+            {
+                BookId = book.Id,
+                BookName = book.Name,
+                Quantity = item.Quantity,
+                UnitPrice = book.Price,
+                Total = item.Quantity * book.Price,
+                OrderId = order.Id
+            };
+
+            newOrderItems.Add(orderItem);
+        }
+
+        order.OrderItems = newOrderItems;
 
         try
         {
-            _context.Orders.Update(order);
+            await _context.OrderItems.AddRangeAsync(newOrderItems);
             await _context.SaveChangesAsync();
             var orderDto = _mapper.Map<OrderViewModel>(order);
             return new ResultViewModel<OrderViewModel>(orderDto);

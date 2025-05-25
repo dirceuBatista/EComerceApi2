@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Junior\\Desktop\\dev\\LivrariaApi\\LivrariaApi.csproj": {}
+    "D:\\Dev\\LivrariaApi\\LivrariaApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Junior\\Desktop\\dev\\LivrariaApi\\LivrariaApi.csproj": {
+    "D:\\Dev\\LivrariaApi\\LivrariaApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Junior\\Desktop\\dev\\LivrariaApi\\LivrariaApi.csproj",
+        "projectUniqueName": "D:\\Dev\\LivrariaApi\\LivrariaApi.csproj",
         "projectName": "LivrariaApi",
-        "projectPath": "C:\\Users\\Junior\\Desktop\\dev\\LivrariaApi\\LivrariaApi.csproj",
+        "projectPath": "D:\\Dev\\LivrariaApi\\LivrariaApi.csproj",
         "packagesPath": "C:\\Users\\Junior\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Junior\\Desktop\\dev\\LivrariaApi\\obj\\",
+        "outputPath": "D:\\Dev\\LivrariaApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Junior\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -87,7 +87,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.312/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.313/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

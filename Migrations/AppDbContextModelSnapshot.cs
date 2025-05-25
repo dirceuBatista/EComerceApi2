@@ -102,11 +102,17 @@ namespace LivrariaApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Document")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("NVARCHAR")
                         .HasColumnName("Name");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -338,8 +344,7 @@ namespace LivrariaApi.Migrations
 
             modelBuilder.Entity("LivrariaApi.Models.User", b =>
                 {
-                    b.Navigation("customer")
-                        .IsRequired();
+                    b.Navigation("customer");
                 });
 #pragma warning restore 612, 618
         }

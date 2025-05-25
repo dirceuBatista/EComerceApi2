@@ -3,15 +3,16 @@ using AutoMapper;
 using LivrariaApi.Data;
 using LivrariaApi.Models;
 using LivrariaApi.ViewModels;
+using LivrariaApi.ViewModels.InputViewModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace LivrariaApi.Services.ContollerService;
 
-public class UserService(AppDbContext context, IMapper mapper)
+public class UserService(AppDbContext context,IMapper mapper)
 {
     private readonly AppDbContext _context = context;
     private readonly IMapper _mapper = mapper;
-
+    
     public async Task<ResultViewModel<List<UserViewModel>>> GetUsers()
     {
         try
@@ -50,7 +51,7 @@ public class UserService(AppDbContext context, IMapper mapper)
         }
     }
 
-    public async Task<ResultViewModel<UserViewModel>> CreateUser(UserViewModel model)
+    public async Task<ResultViewModel<UserViewModel>> CreateUser(InputUserCreate model)
     {
         var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
         if (existingUser != null)
@@ -60,8 +61,10 @@ public class UserService(AppDbContext context, IMapper mapper)
         {
             Name = model.Name,
             Email = model.Email,
-            Slug = model.Slug,
-            PasswordHash = model.Password
+            PasswordHash = model.Password,
+            Slug = "Cliet",
+            Roles = new List<Role>()
+            
             
         };
         try
@@ -71,31 +74,36 @@ public class UserService(AppDbContext context, IMapper mapper)
         }
         catch (Exception e)
         {
-            return new ResultViewModel<UserViewModel>(
-                $"Erro Interno - A03{e.Message}");
+            Console.WriteLine(e);
+            throw;
         }
         var customer = new Customer
         {
+            
             UserId = user.Id,  
-            Name = model.Name
+            Name = model.Name,
+            Document = model.Customer?.Document,
+            Phone = model.Customer?.Phone
+            
         };
         try
         {
+            
             await _context.Customers.AddAsync(customer);
             await _context.SaveChangesAsync();
             
             var userDto = _mapper.Map<UserViewModel>(user);
             return new ResultViewModel<UserViewModel>(userDto);
         }
-
         catch (Exception e)
         {
+            var innerMessage = e.InnerException?.Message ?? e.Message;
             return new ResultViewModel<UserViewModel>(
                 $"Erro Interno - A03{e.Message}");
         }
     }
 
-    public async Task<ResultViewModel<UserViewModel>> UpdateUser( UserViewModel model,Guid id)
+    public async Task<ResultViewModel<UserViewModel>> UpdateUser( InputUserUpdate model,Guid id)
     {
         var user = await _context
             .Users
@@ -106,12 +114,17 @@ public class UserService(AppDbContext context, IMapper mapper)
         user.Name = model.Name;
         user.Email = model.Email;
         user.Slug = model.Slug;
-        user.customer.UserId = user.Id;
-        user.customer.Name = user.Name;
-
+        user.PasswordHash = model.PasswordHash;
+        if (user.customer != null && model.Customer != null)
+        {
+            user.customer.Name = user.Name;
+            user.customer.Phone = model.Customer?.Phone;
+            user.customer.Document = model.Customer?.Document;
+        }
         try
         {
-            _context.Users.Update(user);
+            _context.Entry(user).State = EntityState.Modified;
+            _context.Entry(user.customer).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             var userDto = _mapper.Map<UserViewModel>(user);
             return new ResultViewModel<UserViewModel>(userDto);

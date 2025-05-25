@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TecMuoyknw0=",
+  "dgSpecHash": "UspUqXfshHE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Junior\\Desktop\\dev\\LivrariaApi\\LivrariaApi.csproj",
+  "projectFilePath": "D:\\Dev\\LivrariaApi\\LivrariaApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Junior\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\Junior\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
