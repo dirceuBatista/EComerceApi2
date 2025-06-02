@@ -1,6 +1,7 @@
 using LivrariaApi.Extensions;
 using LivrariaApi.Services.ContollerService;
 using LivrariaApi.ViewModels;
+using LivrariaApi.ViewModels.InputOrder;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LivrariaApi.Controllers;
@@ -33,7 +34,7 @@ public class OrderController(OrderService orderService) : ControllerBase
     {
         var result = await orderService.GetOrderById(id);
         if (!result.Success)
-            return BadRequest(new { erros = result.Errors });
+            return NotFound(new { erros = result.Errors });
         return Ok(result.Data);
     }
     /// <summary>
@@ -49,7 +50,7 @@ public class OrderController(OrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateOrder(
-        [FromBody] OrderViewModel model)
+        [FromBody] InputOrderCreate model)
     {
         if (!ModelState.IsValid)
             return BadRequest(
@@ -58,9 +59,10 @@ public class OrderController(OrderService orderService) : ControllerBase
             = await orderService.CreateOrder(model);
         if (!create.Success)
             return Conflict(new { erros = create.Errors });
-        return Ok(create);
+        return Created($"/api/orders/{create.Data}", create.Data);
+
     }
-    /// <summary>
+   /// <summary>
     /// Atualizar um pedido
     /// </summary>
     /// <param name="Informações atualizadas do pedido"></param>
@@ -75,13 +77,13 @@ public class OrderController(OrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateOrder(
         [FromRoute] Guid id,
-        [FromBody] OrderViewModel model)
+        [FromBody] InputOrderUpdate model)
     {
         if (!ModelState.IsValid)
             return BadRequest(new ResultViewModel<string>(ModelState.GetErrors()));
         var result = await orderService.UpdateOrder( id,model);
         if (!result.Success)
-            return Conflict(new { erros = result.Errors });
+            return NotFound(new { erros = result.Errors });
         return Ok(result);
     }
     /// <summary>
@@ -98,7 +100,7 @@ public class OrderController(OrderService orderService) : ControllerBase
     {
         var result = await orderService.DeleteOrder(id);
         if (!result.Success)
-            return Conflict(new { erros = result.Errors });
+            return NotFound(new { erros = result.Errors });
         return Ok($"{result.Data} - pedido deletado");
     }
 }

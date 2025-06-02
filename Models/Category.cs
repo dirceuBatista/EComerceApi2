@@ -1,3 +1,4 @@
+using LivrariaApi.ViewModels;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace LivrariaApi.Models;
