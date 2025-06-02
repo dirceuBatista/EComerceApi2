@@ -7,7 +7,7 @@ public class User
     public string Slug { get; set; }
     public string Email { get; set; }
     public string PasswordHash { get; set; }
-    public List<Role> Roles { get; set; }
+    public List<Role> Roles { get; set; } = new List<Role>();
     public Customer? customer { get; set; }
     
 }

@@ -3,15 +3,17 @@ using AutoMapper;
 using LivrariaApi.Data;
 using LivrariaApi.Models;
 using LivrariaApi.ViewModels;
+using LivrariaApi.ViewModels.InputViewModel;
 using Microsoft.EntityFrameworkCore;
+using SecureIdentity.Password;
 
 namespace LivrariaApi.Services.ContollerService;
 
-public class UserService(AppDbContext context, IMapper mapper)
+public class UserService(AppDbContext context,IMapper mapper)
 {
     private readonly AppDbContext _context = context;
     private readonly IMapper _mapper = mapper;
-
+    
     public async Task<ResultViewModel<List<UserViewModel>>> GetUsers()
     {
         try
@@ -50,20 +52,31 @@ public class UserService(AppDbContext context, IMapper mapper)
         }
     }
 
-    public async Task<ResultViewModel<UserViewModel>> CreateUser(UserViewModel model)
+    public async Task<ResultViewModel<UserViewModel>> CreateUser(InputUserCreate model)
     {
         var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
         if (existingUser != null)
             return new ResultViewModel<UserViewModel>("Já existe um usuario com este email");
+        
+        var roles = new List<Role>();
 
+        if (model.Roles != null && model.Roles.Any())
+        {
+            roles = await _context.Roles
+                .Where(r => model.Roles.Contains(r.Id))
+                .ToListAsync();
+        }
         var user = new User
         {
             Name = model.Name,
             Email = model.Email,
-            Slug = model.Slug,
-            PasswordHash = model.Password
+            Slug = "Cliet",
+            Roles = roles
+            
             
         };
+        var password = PasswordGenerator.Generate(25);
+        user.PasswordHash = PasswordHasher.Hash(password);
         try
         {
             await _context.Users.AddAsync(user);
@@ -71,47 +84,68 @@ public class UserService(AppDbContext context, IMapper mapper)
         }
         catch (Exception e)
         {
-            return new ResultViewModel<UserViewModel>(
-                $"Erro Interno - A03{e.Message}");
+            Console.WriteLine(e);
+            throw;
         }
         var customer = new Customer
         {
+            
             UserId = user.Id,  
-            Name = model.Name
+            Name = model.Name,
+            Document = model.Customer?.Document,
+            Phone = model.Customer?.Phone
+            
         };
         try
         {
+            
             await _context.Customers.AddAsync(customer);
             await _context.SaveChangesAsync();
             
             var userDto = _mapper.Map<UserViewModel>(user);
             return new ResultViewModel<UserViewModel>(userDto);
         }
-
         catch (Exception e)
         {
+            var innerMessage = e.InnerException?.Message ?? e.Message;
             return new ResultViewModel<UserViewModel>(
                 $"Erro Interno - A03{e.Message}");
         }
     }
 
-    public async Task<ResultViewModel<UserViewModel>> UpdateUser( UserViewModel model,Guid id)
+    public async Task<ResultViewModel<UserViewModel>> UpdateUser( InputUserUpdate model,Guid id)
     {
         var user = await _context
             .Users
             .Include(x => x.customer)
+            .Include(x=>x.Roles)
             .FirstOrDefaultAsync(x => x.Id == id);
         if (user == null)
             return new ResultViewModel<UserViewModel>("Usuario não encontrado");
         user.Name = model.Name;
         user.Email = model.Email;
         user.Slug = model.Slug;
-        user.customer.UserId = user.Id;
-        user.customer.Name = user.Name;
-
+        user.PasswordHash = model.PasswordHash;
+        if (model.Roles != null && model.Roles.Any())
+        {
+            var roleIds = model.Roles.Select(r => r.Id).ToList();
+            
+            var roles = await _context.Roles
+                .Where(r => roleIds.Contains(r.Id))
+                .ToListAsync();
+            
+            user.Roles = roles;
+        }
+        if (user.customer != null && model.Customer != null)
+        {
+            user.customer.Name = user.Name;
+            user.customer.Phone = model.Customer?.Phone;
+            user.customer.Document = model.Customer?.Document;
+        }
         try
         {
-            _context.Users.Update(user);
+            _context.Entry(user).State = EntityState.Modified;
+            _context.Entry(user.customer).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             var userDto = _mapper.Map<UserViewModel>(user);
             return new ResultViewModel<UserViewModel>(userDto);
